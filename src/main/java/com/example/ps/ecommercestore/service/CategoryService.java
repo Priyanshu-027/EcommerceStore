@@ -1,14 +1,17 @@
 package com.example.ps.ecommercestore.service;
 
 import com.example.ps.ecommercestore.model.Category;
+import com.example.ps.ecommercestore.payload.CategoryDTO;
+import com.example.ps.ecommercestore.payload.CategoryRequestDTO;
+import com.example.ps.ecommercestore.payload.CategoryResponse;
 
 import java.util.List;
 
 public interface CategoryService {
 
-    List<Category> getAllCategories();
-    void createCategory(Category category);
+   CategoryResponse getAllCategories();
+    CategoryDTO createCategory(CategoryDTO categoryDTO);
 
-    long deleteCategory(long id);
-    int updateCategory(long id,Category categoryName);
+    void deleteCategory(long id);
+    Category updateCategory(long id,Category categoryName);
 }

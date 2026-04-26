@@ -4,39 +4,25 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Category {
 
 //    static long countId =0;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long categoryId;
+    private Long categoryId;
+    @NotBlank
     private String categoryName;
 
 
-    public Category( String categoryName) {
-//        this.categoryId = ++countId;
-        this.categoryName = categoryName;
-    }
-
-    public Category() {
-
-    }
-
-    public long getCategoryId() {
-        return categoryId;
-    }
-
-
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
 
 
 }
