@@ -1,5 +1,6 @@
 package com.example.ps.ecommercestore.controllers;
 
+import com.example.ps.ecommercestore.config.AppConstants;
 import com.example.ps.ecommercestore.model.Category;
 import com.example.ps.ecommercestore.payload.CategoryDTO;
 import com.example.ps.ecommercestore.payload.CategoryRequestDTO;
@@ -19,8 +20,13 @@ public class CategoryControllers {
    private CategoryService categoryService;
 
     @GetMapping("/public/categories")
-    public ResponseEntity<CategoryResponse> getAllCategories(){
-        CategoryResponse categoryResponse = categoryService.getAllCategories();
+    public ResponseEntity<CategoryResponse> getAllCategories(
+            @RequestParam(name="pagenumber",defaultValue = AppConstants.PAGE_NUMBER,required = false) Integer PageNumber,
+            @RequestParam(name="pagesize",defaultValue = AppConstants.PAGE_SIZE,required = false) Integer PageSize,
+            @RequestParam(name="sortby",defaultValue = AppConstants.SORT_BY,required = false) String sortBy,
+            @RequestParam(name="sortorder",defaultValue = AppConstants.SORT_ORDER,required = false) String sortOrder
+    ){
+        CategoryResponse categoryResponse = categoryService.getAllCategories(PageNumber,PageSize,sortBy,sortOrder);
         return ResponseEntity.ok().body(categoryResponse);
     }
     @PostMapping("/admin/categories")
@@ -29,15 +35,15 @@ public class CategoryControllers {
         return ResponseEntity.status(201).body(savedDto);
     }
     @DeleteMapping("/admin/categories/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable int id){
-      categoryService.deleteCategory(id);
+    public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable int id){
+    CategoryDTO deleteCategoryDto =  categoryService.deleteCategory(id);
 
-        return ResponseEntity.status(200).body("deleted successfully" );
+        return ResponseEntity.status(200).body(deleteCategoryDto );
 
     }
     @PutMapping("/admin/categories/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable int id,@RequestBody Category categoryName){
-        Category updated =categoryService.updateCategory(id,categoryName);
+    public ResponseEntity<CategoryDTO> updateCategory(@PathVariable int id,@RequestBody CategoryDTO categoryName){
+        CategoryDTO updated =categoryService.updateCategory(id,categoryName);
 
         return ResponseEntity.ok(updated);
 

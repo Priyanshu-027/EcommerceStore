@@ -10,8 +10,13 @@ import com.example.ps.ecommercestore.repositories.CategoryRepositories;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContextException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +33,13 @@ public class CategoryServiceImpl implements CategoryService {
     private ModelMapper modelMapper;
 
     @Override
-    public CategoryResponse getAllCategories() {
-        List<Category> categories = categoryRepositories.findAll();
+    public CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize,String sortBy,String sortOrder) {
+        Sort sortbyandsortOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                :Sort.by(sortBy).descending();
+        Pageable pageDetails = PageRequest.of(pageNumber,pageSize,sortbyandsortOrder);
+        Page<Category> categoryPage = categoryRepositories.findAll(pageDetails);
+        List<Category> categories = categoryPage.getContent();
         if(categories.isEmpty()){
             throw new APIException("no category is listed till now!!");
         }
@@ -38,6 +48,11 @@ public class CategoryServiceImpl implements CategoryService {
                 .toList();
         CategoryResponse categoryResponse = new CategoryResponse();
         categoryResponse.setContent(categoryDTOS);
+        categoryResponse.setPageNumber(categoryPage.getNumber());
+        categoryResponse.setPageSize(categoryPage.getSize());
+        categoryResponse.setTotalElements(categoryPage.getTotalElements());
+        categoryResponse.setTotalPages(categoryPage.getTotalPages());
+        categoryResponse.setLastPage(categoryPage.isLast());
         return categoryResponse;
     }
 
@@ -54,13 +69,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(long id) {
+    public CategoryDTO deleteCategory(long id) {
 //        long count = categories.stream().filter(c->c.getCategoryId()==id).count()
 //            categories = categories.stream().filter(c->c.getCategoryId()!=id).collect(Collectors.toList());
         Category category = categoryRepositories.findById(id).orElseThrow(()->new ResourceNotFoundException("Category","id",id));
-
+CategoryDTO categoryDTO = modelMapper.map(category,CategoryDTO.class);
         categoryRepositories.deleteById(id);
 
+        return categoryDTO;
 
 
 
@@ -68,13 +84,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category updateCategory(long id, Category categoryNewName) {
-
+    public CategoryDTO updateCategory(long id, CategoryDTO categoryDto) {
+Category category = modelMapper.map(categoryDto,Category.class);
         Category existing = categoryRepositories.findById(id).orElseThrow(()->new ResourceNotFoundException("Category","id",id));
 
-    existing.setCategoryName(categoryNewName.getCategoryName());
-
-    return categoryRepositories.save(existing);
+    existing.setCategoryName(category.getCategoryName());
+     Category savedCategory =  categoryRepositories.save(existing);
+    CategoryDTO updatedCategoryDto = modelMapper.map(savedCategory,CategoryDTO.class);
+    return updatedCategoryDto;
 
 
 
